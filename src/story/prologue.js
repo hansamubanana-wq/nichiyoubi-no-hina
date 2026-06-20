@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { buildFuneral } from "../scenes/funeral.js";
 import { buildHouse, upgradeHouse } from "../scenes/house.js";
 import { laundry } from "../core/build.js";
+import { loadMapData } from "../editor/mapIO.js";
 
 // プロローグ「届かなかった日曜日」の進行。
 // 台本の流れに沿って、シーン構築・カメラ・会話・環境音を順に展開する。
@@ -29,7 +30,10 @@ export async function runPrologue(game, assets) {
   // ============================================================
   const funeral = buildFuneral();
   game.setScene(funeral.scene);
-  if (assets) assets.applyEnvironment(funeral.scene, 0.18);
+  if (assets) {
+    assets.applyEnvironment(funeral.scene, 0.18);
+    await loadMapData(funeral.scene, "funeral", assets); // エディタの配置修正を適用
+  }
   attachRain(funeral.rain);
   game.placeCamera(funeral.cam.portrait.pos, funeral.cam.portrait.look);
   await game.fade("clear", 3);

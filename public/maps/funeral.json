@@ -1,0 +1,40 @@
+{
+  "scene": "funeral",
+  "overrides": {
+    "auto:56": {
+      "note": "auto:56",
+      "pos": [
+        0.904,
+        0,
+        3.591
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1
+    }
+  },
+  "removed": [
+    "auto:47"
+  ],
+  "added": [
+    {
+      "type": "hina",
+      "note": "陽菜(VRM)",
+      "name": "auto:47",
+      "pos": [
+        -0.302,
+        0.008,
+        -0.671
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1
+    }
+  ]
+}

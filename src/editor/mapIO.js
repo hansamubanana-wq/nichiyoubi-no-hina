@@ -34,9 +34,25 @@ export function applyTransform(obj, t) {
   if (t.scale != null) obj.scale.setScalar(t.scale);
 }
 
+// 名前の無いトップレベルオブジェクトに auto:N を決定的に付与する。
+// エディタとランタイムで同じ規則を使うことで、index 参照を一致させる。
+// （ライト・カメラ・ヘルパー・グリッドは番号を消費しない＝スキップ）
+export function assignAutoNames(scene) {
+  let auto = 0;
+  for (const c of scene.children) {
+    if (c.isLight || c.isCamera) continue;
+    if (c.name === "__grid") continue;
+    if (c.type && c.type.includes("Helper")) continue;
+    if (c.isTransformControls || c.isTransformControlsRoot) continue;
+    if (!c.name) c.name = `auto:${auto++}`;
+  }
+}
+
 // ランタイムでシーンにマップデータを適用する。
 export async function applyMapData(scene, map, assets) {
   if (!map) return;
+  assignAutoNames(scene); // index 参照（auto:N）を解決
+
   // 上書き
   if (map.overrides) {
     for (const [name, t] of Object.entries(map.overrides)) {
@@ -93,6 +109,9 @@ export function serialize(sceneName, items) {
     const t = transformOf(it.obj);
     const note = TYPE_LABELS[it.type] || it.name;
     if (it.added) {
+      // 既存オブジェクトの「種類変更」（名前が add: で始まらない）は、
+      // 元のオブジェクトを削除しつつ新種類を追加する（二重配置を防ぐ）。
+      if (!String(it.name).startsWith("add:")) removed.push(it.name);
       added.push({ type: it.type, note, name: it.name, ...t });
     } else if (it.dirty) {
       overrides[it.name] = { note, ...t };

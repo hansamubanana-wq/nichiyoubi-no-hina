@@ -3,7 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { TransformControls } from "three/examples/jsm/controls/TransformControls.js";
 import { AssetManager } from "../core/assets.js";
 import { createObject, PALETTE, TYPE_LABELS } from "./MapKit.js";
-import { serialize, applyMapData, transformOf } from "./mapIO.js";
+import { serialize, applyMapData, transformOf, assignAutoNames } from "./mapIO.js";
 
 import { buildHouse, upgradeHouse } from "../scenes/house.js";
 import { buildHinaRoom, upgradeHinaRoom } from "../scenes/hinaRoom.js";
@@ -71,7 +71,25 @@ export class Editor {
     const built = def.build();
     if (def.upgrade) await def.upgrade(this.assets, built.scene, built.refs, null, { skipMap: true });
 
-    // エディタ用の足場（グリッド・光）を追加
+    // ★ グリッド/ギズモを足す前に、純粋なシーンへ auto:N を付与（ランタイムと一致させる）
+    assignAutoNames(built.scene);
+
+    // 編集対象を列挙（ライト等を除く）
+    this.items = [];
+    for (const child of [...built.scene.children]) {
+      if (child.isLight || child.isCamera) continue;
+      if (child.type && child.type.includes("Helper")) continue;
+      this.items.push({
+        name: child.name,
+        obj: child,
+        type: child.userData.kitType || null,
+        added: false,
+        dirty: false,
+        removed: false,
+      });
+    }
+
+    // エディタ用の足場（グリッド・光・ギズモ）
     const grid = new THREE.GridHelper(40, 40, 0x4a5568, 0x2a3038);
     grid.position.y = 0.01;
     grid.name = "__grid";
@@ -82,28 +100,8 @@ export class Editor {
       dl.position.set(5, 10, 6);
       built.scene.add(dl);
     }
-
     this.scene = built.scene;
     this.scene.add(this._gizmoHelper);
-
-    // 編集対象を列挙（足場・ライト・gizmo を除く）
-    this.items = [];
-    let auto = 0;
-    for (const child of [...this.scene.children]) {
-      if (child === this.grid || child === this._gizmoHelper) continue;
-      if (child.isLight || child.isCamera) continue;
-      if (child.type === "Mesh" && child.geometry?.type === "SphereGeometry" && !child.material?.map)
-        {/* 小さな装飾も編集可にする */}
-      if (!child.name) child.name = `auto:${auto++}`;
-      this.items.push({
-        name: child.name,
-        obj: child,
-        type: child.userData.kitType || null,
-        added: false,
-        dirty: false,
-        removed: false,
-      });
-    }
 
     // 既存の保存マップを取り込み（あれば適用＋dirty/added 復元）
     await this._mergeSavedMap(name);

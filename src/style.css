@@ -1,0 +1,503 @@
+:root {
+  --ink: #e9e3d6;
+  --ink-soft: #b8b0a0;
+  --bg: #0a0c0f;
+  --accent: #c8a96a;
+  --dialogue-bg: rgba(8, 10, 13, 0.82);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP",
+    serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* フェード */
+#fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 1.6s ease;
+  z-index: 30;
+}
+
+/* 中央キャプション */
+#caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  pointer-events: none;
+}
+#caption p {
+  max-width: min(80%, 720px);
+  text-align: center;
+  font-size: clamp(1.1rem, 3.4vw, 1.9rem);
+  line-height: 2.4;
+  letter-spacing: 0.14em;
+  color: #f3eee2;
+  opacity: 0;
+  transition: opacity 2s ease;
+  white-space: pre-line;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8);
+}
+#caption p.show {
+  opacity: 1;
+}
+
+/* 会話ウィンドウ */
+#dialogue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(18px, 5vh, 48px);
+  transform: translateX(-50%);
+  width: min(92%, 860px);
+  background: var(--dialogue-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(200, 169, 106, 0.22);
+  border-radius: 10px;
+  padding: clamp(16px, 3vw, 28px) clamp(20px, 4vw, 34px);
+  z-index: 45;
+  cursor: pointer;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#dialogue.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(16px);
+  pointer-events: none;
+}
+#dialogue .name {
+  color: var(--accent);
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  min-height: 1.2em;
+}
+#dialogue .name:empty {
+  margin-bottom: 0;
+}
+#dialogue .text {
+  font-size: clamp(1.02rem, 2.7vw, 1.32rem);
+  line-height: 2.05;
+  letter-spacing: 0.05em;
+  min-height: 2.05em;
+  color: var(--ink);
+}
+#dialogue .hint {
+  position: absolute;
+  right: 18px;
+  bottom: 10px;
+  color: var(--accent);
+  opacity: 0;
+  font-size: 0.85rem;
+  animation: bob 1.2s ease-in-out infinite;
+}
+#dialogue.ready .hint {
+  opacity: 0.8;
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* 目的表示 */
+#objective {
+  position: absolute;
+  top: clamp(16px, 4vh, 34px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 42;
+  color: var(--ink-soft);
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
+  letter-spacing: 0.18em;
+  padding: 8px 22px;
+  border-top: 1px solid rgba(200, 169, 106, 0.25);
+  border-bottom: 1px solid rgba(200, 169, 106, 0.25);
+  background: rgba(0, 0, 0, 0.25);
+  transition: opacity 0.8s ease;
+  text-align: center;
+  max-width: 92%;
+}
+@media (max-width: 520px) {
+  #objective {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+  }
+  #dialogue .text {
+    line-height: 1.9;
+  }
+}
+#objective.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* インタラクトヒント */
+#cursor-hint {
+  position: absolute;
+  z-index: 41;
+  transform: translate(-50%, -140%);
+  background: rgba(8, 10, 13, 0.78);
+  border: 1px solid rgba(200, 169, 106, 0.35);
+  color: var(--ink);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+#cursor-hint.hidden {
+  opacity: 0;
+}
+
+/* タイトル画面 */
+#title-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(20, 24, 30, 0.4),
+    rgba(0, 0, 0, 0.85)
+  );
+  transition: opacity 1.4s ease;
+  padding: 24px;
+  text-align: center;
+}
+#title-screen.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+.game-title {
+  font-size: clamp(2.4rem, 9vw, 4.6rem);
+  letter-spacing: 0.3em;
+  font-weight: 500;
+  text-indent: 0.3em;
+  color: #f1ead9;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.7);
+}
+#title-screen .sub {
+  color: var(--ink-soft);
+  letter-spacing: 0.22em;
+  font-size: clamp(0.85rem, 3vw, 1.05rem);
+}
+#start-btn {
+  margin-top: 22px;
+  font-family: inherit;
+  font-size: clamp(1rem, 3vw, 1.15rem);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: #f1ead9;
+  background: transparent;
+  border: 1px solid rgba(200, 169, 106, 0.5);
+  padding: 14px 46px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+#start-btn:hover {
+  background: rgba(200, 169, 106, 0.12);
+  border-color: var(--accent);
+  letter-spacing: 0.4em;
+}
+#title-screen .note {
+  margin-top: 28px;
+  color: rgba(184, 176, 160, 0.6);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+}
+
+/* ローディング */
+#loading {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s ease;
+}
+#loading.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+#loading span {
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(200, 169, 106, 0.25);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 選択肢 */
+#choices {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(20px, 6vh, 70px);
+  transform: translateX(-50%);
+  z-index: 46;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(90%, 560px);
+  transition: opacity 0.5s ease;
+}
+#choices.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#choices button {
+  font-family: inherit;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: rgba(8, 10, 13, 0.82);
+  border: 1px solid rgba(200, 169, 106, 0.32);
+  padding: 15px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+}
+#choices button:hover {
+  background: rgba(200, 169, 106, 0.14);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* 書類ビュー */
+#document {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
+  transition: opacity 0.7s ease;
+  padding: 24px;
+}
+#document.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.doc-paper {
+  width: min(92%, 600px);
+  max-height: 84vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #efe8d6, #e4dbc6);
+  color: #2b2620;
+  padding: clamp(26px, 5vw, 48px);
+  border-radius: 4px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 2.1em,
+    rgba(140, 120, 90, 0.18) 2.15em
+  );
+}
+.doc-title {
+  font-size: clamp(1.1rem, 3.2vw, 1.5rem);
+  letter-spacing: 0.1em;
+  border-bottom: 2px solid rgba(120, 90, 60, 0.4);
+  padding-bottom: 12px;
+  margin-bottom: 22px;
+}
+.doc-body {
+  font-size: clamp(0.98rem, 2.6vw, 1.18rem);
+  line-height: 2.15;
+  letter-spacing: 0.04em;
+  white-space: pre-line;
+}
+.doc-close {
+  margin-top: 28px;
+  text-align: right;
+  color: #7a5a3a;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  font-size: 0.95rem;
+}
+.doc-close:hover {
+  color: #5a3a1a;
+}
+
+/* 音声メモ */
+#audiomemo {
+  position: absolute;
+  inset: 0;
+  z-index: 48;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease;
+  padding: 24px;
+}
+#audiomemo.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.memo-card {
+  width: min(92%, 600px);
+  background: rgba(10, 13, 18, 0.9);
+  border: 1px solid rgba(200, 169, 106, 0.3);
+  border-radius: 14px;
+  padding: clamp(22px, 4vw, 36px);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.6);
+}
+.memo-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  margin-bottom: 18px;
+}
+.memo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}
+.memo-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 46px;
+  margin-bottom: 22px;
+}
+.memo-wave i {
+  flex: 1;
+  background: rgba(200, 169, 106, 0.35);
+  height: 18%;
+  border-radius: 2px;
+}
+.memo-wave.playing i {
+  animation: wave 0.9s ease-in-out infinite;
+}
+.memo-wave.playing i:nth-child(odd) {
+  animation-delay: 0.15s;
+}
+.memo-wave.playing i:nth-child(3n) {
+  animation-delay: 0.3s;
+}
+.memo-wave.playing i:nth-child(4n) {
+  animation-delay: 0.45s;
+}
+@keyframes wave {
+  0%,
+  100% {
+    height: 14%;
+  }
+  50% {
+    height: 86%;
+  }
+}
+.memo-text {
+  font-size: clamp(1rem, 2.7vw, 1.25rem);
+  line-height: 2.1;
+  letter-spacing: 0.05em;
+  min-height: 2.1em;
+  color: var(--ink);
+}
+
+/* 回想（フラッシュバック）の色調 */
+#scene {
+  transition: filter 1.6s ease;
+}
+body.flashback #scene {
+  filter: sepia(0.5) brightness(0.86) contrast(0.94);
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* クリア後のタイトル余韻：海辺の日曜日 */
+#title-screen.ending {
+  background: linear-gradient(
+    180deg,
+    #8fc0e0 0%,
+    #bcd9ea 48%,
+    #cfe2ec 62%,
+    #6f9fbe 63%,
+    #4f86a6 100%
+  );
+}
+#title-screen.ending .note {
+  color: rgba(255, 255, 255, 0.7);
+}
+#title-screen.ending .game-title {
+  color: #fff7e8;
+}
+#title-screen.ending .sub::after {
+  content: "また、日曜日に。";
+}
+#title-screen.ending .sub {
+  font-size: 0;
+}
+#title-screen.ending .sub::after {
+  font-size: clamp(0.85rem, 3vw, 1.05rem);
+}

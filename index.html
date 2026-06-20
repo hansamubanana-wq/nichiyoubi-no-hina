@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>日曜日の陽菜</title>
+    <meta name="description" content="父親が娘の残したものを通して、少しずつ赦されていく探索型ストーリーゲーム。プロローグ「届かなかった日曜日」。" />
+
+    <!-- favicon / icons -->
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#0d1014" />
+
+    <!-- OGP -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="日曜日の陽菜" />
+    <meta property="og:description" content="また、日曜日に。— 探索型ストーリーゲーム" />
+    <meta property="og:image" content="/icons/ogp.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <!-- 画面オーバーレイ（フェード用） -->
+      <div id="fade"></div>
+
+      <!-- 中央キャプション（白文字演出） -->
+      <div id="caption"><p></p></div>
+
+      <!-- 会話ウィンドウ -->
+      <div id="dialogue" class="hidden">
+        <div class="name"></div>
+        <div class="text"></div>
+        <div class="hint">▼</div>
+      </div>
+
+      <!-- 目的表示 -->
+      <div id="objective" class="hidden"></div>
+
+      <!-- インタラクト用ヒント -->
+      <div id="cursor-hint" class="hidden"></div>
+
+      <!-- 選択肢 -->
+      <div id="choices" class="hidden"></div>
+
+      <!-- 書類ビュー（日記・作文・ノート・メモ） -->
+      <div id="document" class="hidden">
+        <div class="doc-paper">
+          <div class="doc-title"></div>
+          <div class="doc-body"></div>
+          <div class="doc-close">そっと閉じる ▸</div>
+        </div>
+      </div>
+
+      <!-- 音声メモ再生 -->
+      <div id="audiomemo" class="hidden">
+        <div class="memo-card">
+          <div class="memo-head">
+            <span class="memo-icon">▶</span>
+            <span class="memo-title"></span>
+          </div>
+          <div class="memo-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="memo-text"></div>
+        </div>
+      </div>
+
+      <!-- タイトル / スタート -->
+      <div id="title-screen">
+        <h1 class="game-title">日曜日の陽菜</h1>
+        <p class="sub">プロローグ ── 届かなかった日曜日</p>
+        <button id="start-btn">はじめる</button>
+        <p class="note">イヤホン推奨 ・ クリック / スペースで進む</p>
+      </div>
+
+      <!-- ローディング -->
+      <div id="loading"><span></span></div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

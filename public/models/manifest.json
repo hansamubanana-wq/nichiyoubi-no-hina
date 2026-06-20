@@ -1,0 +1,17 @@
+{
+  "models": {
+    "sofa_03": "models/sofa_03/sofa_03_2k.gltf",
+    "wooden_table_02": "models/wooden_table_02/wooden_table_02_2k.gltf",
+    "dining_chair_02": "models/dining_chair_02/dining_chair_02_2k.gltf",
+    "electric_stove": "models/electric_stove/electric_stove_2k.gltf",
+    "wall_clock": "models/wall_clock/wall_clock_2k.gltf",
+    "SchoolDesk_01": "models/SchoolDesk_01/SchoolDesk_01_2k.gltf",
+    "SchoolChair_01": "models/SchoolChair_01/SchoolChair_01_2k.gltf",
+    "wooden_bookshelf_worn": "models/wooden_bookshelf_worn/wooden_bookshelf_worn_2k.gltf",
+    "book_encyclopedia_set_01": "models/book_encyclopedia_set_01/book_encyclopedia_set_01_2k.gltf"
+  },
+  "hdri": "hdri/lythwood_room_1k.hdr",
+  "vrms": {
+    "hina": "models/characters/hina.vrm"
+  }
+}

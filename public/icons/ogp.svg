@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f1722"/>
+      <stop offset="0.62" stop-color="#16263a"/>
+      <stop offset="0.63" stop-color="#1b2e44"/>
+      <stop offset="1" stop-color="#0c161f"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="40%" r="55%">
+      <stop offset="0" stop-color="#f6e6bc"/>
+      <stop offset="0.45" stop-color="#e8c478"/>
+      <stop offset="1" stop-color="#e8c478" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <!-- 太陽 -->
+  <circle cx="600" cy="250" r="170" fill="url(#sun)"/>
+  <circle cx="600" cy="250" r="64" fill="#f3e0a8"/>
+  <!-- 水平線 -->
+  <rect y="395" width="1200" height="3" fill="#d8c89a" opacity="0.5"/>
+  <!-- 波の反射 -->
+  <g opacity="0.18" fill="#e8c478">
+    <rect x="540" y="420" width="120" height="2"/>
+    <rect x="520" y="450" width="160" height="2"/>
+    <rect x="560" y="485" width="80" height="2"/>
+    <rect x="500" y="520" width="200" height="2"/>
+  </g>
+  <!-- タイトル -->
+  <text x="600" y="300" text-anchor="middle"
+    font-family="'Hiragino Mincho ProN','Yu Mincho',serif"
+    font-size="92" letter-spacing="16" fill="#f3eede">日曜日の陽菜</text>
+  <text x="600" y="580" text-anchor="middle"
+    font-family="'Hiragino Mincho ProN','Yu Mincho',serif"
+    font-size="30" letter-spacing="10" fill="#c8b78a">また、日曜日に。</text>
+</svg>

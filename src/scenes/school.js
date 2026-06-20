@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { box, mat, table, chair, figure } from "../core/build.js";
+import { box, mat, table, chair, figure, nameRefs } from "../core/build.js";
+import { loadMapData } from "../editor/mapIO.js";
 
 // 学校・面談室。CHAPTER 4。担任と向かい合い、作文を受け取る。
 export function buildSchool() {
@@ -9,12 +10,22 @@ export function buildSchool() {
   const refs = {};
 
   const w = 7, d = 6, h = 2.8;
-  scene.add(box(w, 0.2, d, mat(0x8a8170, { roughness: 0.6 }), 0, -0.1, 0)); // 床（リノリウム風）
+  const floor = box(w, 0.2, d, mat(0x8a8170, { roughness: 0.6 }), 0, -0.1, 0);
+  floor.userData.surface = { tex: "wood_floor", tile: 2.4 };
+  scene.add(floor);
   const wallMat = mat(0xbfc6c0, { roughness: 0.96 });
-  scene.add(box(w, h, 0.2, wallMat, 0, h / 2, -d / 2));
-  scene.add(box(0.2, h, d, wallMat, -w / 2, h / 2, 0));
-  scene.add(box(0.2, h, d, wallMat, w / 2, h / 2, 0));
-  scene.add(box(w, 0.2, d, mat(0xd5d8d0, { roughness: 1 }), 0, h, 0));
+  const walls = [
+    box(w, h, 0.2, wallMat, 0, h / 2, -d / 2),
+    box(0.2, h, d, wallMat, -w / 2, h / 2, 0),
+    box(0.2, h, d, wallMat, w / 2, h / 2, 0),
+  ];
+  walls.forEach((wl) => {
+    wl.userData.surface = { tex: "painted_plaster_wall", tile: 2.6 };
+    scene.add(wl);
+  });
+  const ceil = box(w, 0.2, d, mat(0xd5d8d0, { roughness: 1 }), 0, h, 0);
+  ceil.userData.surface = { tex: "painted_plaster_wall", tile: 3.0 };
+  scene.add(ceil);
 
   // 大きな窓（夕方の光）
   scene.add(box(2.6, 1.6, 0.06, mat(0xcfd8dd, { roughness: 0.2, metalness: 0.1 }), 0, 1.6, -d / 2 + 0.05));
@@ -59,16 +70,19 @@ export function buildSchool() {
     window: { pos: [0.5, 1.4, 1.2], look: [0, 1.6, -3] },
   };
 
+  nameRefs(refs);
   return { scene, refs, cam };
 }
 
-export async function upgradeSchool(assets, scene, refs) {
+export async function upgradeSchool(assets, scene, refs, game, opts = {}) {
   if (!assets) return;
   await assets.ready;
   assets.applyEnvironment(scene, 0.3);
+  assets.applySurfaceTextures(scene);
   await assets.swap(scene, refs.table, "wooden_table_02", { scaleMul: 0.92 });
   if (refs.chairs) {
     await assets.swap(scene, refs.chairs[0], "dining_chair_02", { rotationY: 0 });
     await assets.swap(scene, refs.chairs[1], "dining_chair_02", { rotationY: Math.PI });
   }
+  if (!opts.skipMap) await loadMapData(scene, "school", assets);
 }

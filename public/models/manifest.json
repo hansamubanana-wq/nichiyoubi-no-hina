@@ -13,5 +13,22 @@
   "hdri": "hdri/lythwood_room_1k.hdr",
   "vrms": {
     "hina": "models/characters/hina.vrm"
+  },
+  "textures": {
+    "wood_floor": {
+      "diff": "textures/wood_floor/wood_floor_diff_1k.jpg",
+      "nor": "textures/wood_floor/wood_floor_nor_gl_1k.jpg",
+      "rough": "textures/wood_floor/wood_floor_rough_1k.jpg"
+    },
+    "beige_wall_001": {
+      "diff": "textures/beige_wall_001/beige_wall_001_diff_1k.jpg",
+      "nor": "textures/beige_wall_001/beige_wall_001_nor_gl_1k.jpg",
+      "rough": "textures/beige_wall_001/beige_wall_001_rough_1k.jpg"
+    },
+    "painted_plaster_wall": {
+      "diff": "textures/painted_plaster_wall/painted_plaster_wall_diff_1k.jpg",
+      "nor": "textures/painted_plaster_wall/painted_plaster_wall_nor_gl_1k.jpg",
+      "rough": "textures/painted_plaster_wall/painted_plaster_wall_rough_1k.jpg"
+    }
   }
 }

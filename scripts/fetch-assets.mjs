@@ -24,6 +24,10 @@ const MODEL_RES = ["2k", "1k"]; // 優先順
 const HDRI = "lythwood_room";
 const HDRI_RES = "1k";
 
+// 床・壁・天井などの PBR テクスチャ（Poly Haven / CC0・軽量1k jpg）
+const TEXTURES = ["wood_floor", "beige_wall_001", "painted_plaster_wall"];
+const TEX_RES = "1k";
+
 // キャラクター VRM（陽菜）。VRoid 系のアニメ女子サンプル。
 // ※プレースホルダ。自作の VRoid モデルに差し替え可能。
 const VRMS = [
@@ -84,7 +88,25 @@ async function fetchHDRI(id) {
   return { id, file: `hdri/${name}` };
 }
 
-const manifest = { models: {}, hdri: null, vrms: {} };
+async function fetchTexture(id) {
+  const files = await getJSON(`${API}/files/${id}`);
+  const dir = new URL(`textures/${id}/`, ROOT);
+  await mkdir(dir, { recursive: true });
+  const maps = { Diffuse: "diff", nor_gl: "nor", Rough: "rough" };
+  const result = {};
+  let total = 0;
+  for (const [key, short] of Object.entries(maps)) {
+    const entry = files[key]?.[TEX_RES]?.jpg;
+    if (!entry) continue;
+    const name = entry.url.split("/").pop();
+    total += await download(entry.url, new URL(name, dir));
+    result[short] = `textures/${id}/${name}`;
+  }
+  console.log(`✓ texture ${id} (${TEX_RES})  ${(total / 1e6).toFixed(2)} MB`);
+  return result;
+}
+
+const manifest = { models: {}, hdri: null, vrms: {}, textures: {} };
 for (const id of MODELS) {
   try {
     const m = await fetchModel(id);
@@ -98,6 +120,13 @@ try {
   manifest.hdri = h.file;
 } catch (e) {
   console.error(`✗ hdri ${HDRI}: ${e.message}`);
+}
+for (const id of TEXTURES) {
+  try {
+    manifest.textures[id] = await fetchTexture(id);
+  } catch (e) {
+    console.error(`✗ texture ${id}: ${e.message}`);
+  }
 }
 for (const v of VRMS) {
   try {

@@ -3,6 +3,21 @@ import * as THREE from "three";
 // 手作りジオメトリ用のヘルパ群。後で GLTF アセットに差し替えられるよう、
 // 家具などは関数単位で分けてある。
 
+// refs の各オブジェクトに、キー名を name として付与する（マップエディタ用の識別子）。
+// 値が配列の場合は key0, key1 ... とする。
+export function nameRefs(refs) {
+  for (const [key, val] of Object.entries(refs)) {
+    if (!val) continue;
+    if (Array.isArray(val)) {
+      val.forEach((o, i) => {
+        if (o && o.isObject3D && !o.name) o.name = `${key}${i}`;
+      });
+    } else if (val.isObject3D && !val.name) {
+      val.name = key;
+    }
+  }
+}
+
 export function mat(color, opts = {}) {
   return new THREE.MeshStandardMaterial({
     color,

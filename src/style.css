@@ -341,23 +341,26 @@ body {
   width: min(92%, 600px);
   max-height: 84vh;
   overflow-y: auto;
-  background: linear-gradient(180deg, #efe8d6, #e4dbc6);
-  color: #2b2620;
+  /* 不透明な紙地（background-color）＋ 罫線（background-image）を併用。
+     以前は background→background-image の順で地色が消え文字が読めなかった。 */
+  background-color: #f3ecdb;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 2.1em,
+    rgba(150, 125, 90, 0.16) 2.15em
+  );
+  color: #241f18;
   padding: clamp(26px, 5vw, 48px);
   border-radius: 4px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
   font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
   position: relative;
-  background-image: repeating-linear-gradient(
-    transparent,
-    transparent 2.1em,
-    rgba(140, 120, 90, 0.18) 2.15em
-  );
 }
 .doc-title {
   font-size: clamp(1.1rem, 3.2vw, 1.5rem);
   letter-spacing: 0.1em;
-  border-bottom: 2px solid rgba(120, 90, 60, 0.4);
+  color: #2a2118;
+  border-bottom: 2px solid rgba(120, 90, 60, 0.45);
   padding-bottom: 12px;
   margin-bottom: 22px;
 }
@@ -366,6 +369,7 @@ body {
   line-height: 2.15;
   letter-spacing: 0.04em;
   white-space: pre-line;
+  color: #241f18;
 }
 .doc-close {
   margin-top: 28px;
@@ -459,7 +463,8 @@ body {
   line-height: 2.1;
   letter-spacing: 0.05em;
   min-height: 2.1em;
-  color: var(--ink);
+  color: #f4efe4; /* 暗いカード上で確実に読める明色 */
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* 回想（フラッシュバック）の色調 */

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { box, mat, portrait } from "../core/build.js";
+import { box, mat, portrait, nameRefs } from "../core/build.js";
 
 // 海辺。FINAL CHAPTER。晴れた朝。誠司が遺影と写真を持って海へ。
 // 陽菜が幻として波打ち際に現れる。
@@ -64,6 +64,7 @@ export function buildBeach() {
     hina: { pos: [0, 1.1, 2.2], look: [0.4, 1.2, -3.2] },
   };
 
+  nameRefs(refs);
   return { scene, refs, cam };
 }
 

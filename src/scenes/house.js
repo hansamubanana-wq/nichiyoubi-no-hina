@@ -11,7 +11,9 @@ import {
   cardigan,
   laundry,
   figure,
+  nameRefs,
 } from "../core/build.js";
+import { loadMapData } from "../editor/mapIO.js";
 
 // 佐伯家の屋内。リビング・食卓・台所が一続き、右手に階段と陽菜の部屋。
 // 演出で使う主要オブジェクトへの参照を返す。
@@ -22,17 +24,24 @@ export function buildHouse() {
 
   const refs = {};
 
-  // ---- 床・壁（横長のワンフロア） ----
+  // ---- 床・壁（横長のワンフロア）。userData.surface で外部テクスチャを適用 ----
   const floor = box(24, 0.2, 14, mat(0x4a3a2a, { roughness: 0.75 }), 0, -0.1, 0);
+  floor.userData.surface = { tex: "wood_floor", tile: 2.2 };
   scene.add(floor);
   // 畳風のラグ（リビング）
   scene.add(box(5, 0.04, 4, mat(0x6b6147, { roughness: 1 }), -5, 0.01, 1));
 
   const wallMat = mat(0xb6aa92, { roughness: 0.97 });
-  scene.add(box(24, 5, 0.3, wallMat, 0, 2.5, -7)); // 奥壁
-  scene.add(box(0.3, 5, 14, wallMat, -12, 2.5, 0)); // 左壁
-  scene.add(box(0.3, 5, 14, wallMat, 12, 2.5, 0)); // 右壁
-  scene.add(box(24, 0.3, 14, mat(0x8a8068, { roughness: 1 }), 0, 5, 0)); // 天井
+  const wBack = box(24, 5, 0.3, wallMat, 0, 2.5, -7); // 奥壁
+  const wLeft = box(0.3, 5, 14, wallMat, -12, 2.5, 0); // 左壁
+  const wRight = box(0.3, 5, 14, wallMat, 12, 2.5, 0); // 右壁
+  [wBack, wLeft, wRight].forEach((w) => {
+    w.userData.surface = { tex: "beige_wall_001", tile: 2.6 };
+    scene.add(w);
+  });
+  const ceil = box(24, 0.3, 14, mat(0x8a8068, { roughness: 1 }), 0, 5, 0); // 天井
+  ceil.userData.surface = { tex: "painted_plaster_wall", tile: 3.0 };
+  scene.add(ceil);
 
   // ---- リビング（左寄り）：祭壇・ソファ・カーディガン ----
   const al = altar();
@@ -197,6 +206,7 @@ export function buildHouse() {
     hallway: { pos: [10.5, 2.0, -3.2], look: [8.2, 1.6, -6.5] },
   };
 
+  nameRefs(refs);
   return { scene, refs, cam };
 }
 
@@ -234,6 +244,7 @@ export async function upgradeHouse(assets, scene, refs, game, opts = {}) {
   if (!assets) return;
   await assets.ready;
   assets.applyEnvironment(scene, 0.3);
+  assets.applySurfaceTextures(scene); // 床・壁・天井に外部テクスチャ
 
   // 陽菜（VRM）。存命時（プロローグ）のみ登場。
   // 故人となった本編では家に出さない（シルエットも撤去）。
@@ -278,5 +289,12 @@ export async function upgradeHouse(assets, scene, refs, game, opts = {}) {
     rotationY: 0,
     fit: "height",
   });
-  if (stove) refs.stove = stove; // 「朝食を作る」インタラクト対象を更新
+  if (stove) {
+    stove.name = "stove";
+    stove.userData.kitType = "electric_stove";
+    refs.stove = stove; // 「朝食を作る」インタラクト対象を更新
+  }
+
+  // マップエディタで保存した配置修正（public/maps/house.json）を適用
+  if (!opts.skipMap) await loadMapData(scene, "house", assets);
 }

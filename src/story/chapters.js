@@ -192,11 +192,18 @@ export async function runChapters(game, assets) {
   });
   await game.say("誠司", "行く気、あったのか。");
 
+  // 選択肢ごとに個別の文言。ただし結末（メモを持っていく）は共通。
   const ch = await game.choice(["読み返す", "ポケットに入れる", "机に戻す"]);
-  if (ch === 0) await game.say("", "もう一度、読み返す。何度も。");
-  else if (ch === 1) await game.say("", "メモを、そっとポケットに入れる。");
-  else await game.say("", "机に戻そうとして……やっぱり、持っていくことにした。");
-  await game.say("", "どれを選んでも、誠司はメモを持っていく。");
+  if (ch === 0) {
+    await game.say("", "もう一度、読み返す。何度も、何度も。");
+    await game.say("", "誠司は、メモを手のひらに包んだ。");
+  } else if (ch === 1) {
+    await game.say("", "メモを、そっとポケットに入れた。");
+    await game.say("", "胸の近くに、しまっておきたかった。");
+  } else {
+    await game.say("", "机に戻そうとして、手が止まる。");
+    await game.say("", "……やっぱり、持っていくことにした。");
+  }
 
   // ============================================================
   // CHAPTER 3「父の記憶」
@@ -352,7 +359,7 @@ async function dreamChapter(game, assets) {
   game.audio.start("drone", 0.18, 3);
   await game.fade("clear", 2.4);
 
-  // 場面1：食卓（選択しても結果は変わらない）
+  // 場面1：食卓（選択肢は個別だが、結末は共通＝陽菜は静かに笑うだけ）
   await game.say("", "夢の中。食卓。陽菜が、黙っている。");
   const ch = await game.choice([
     "「大丈夫か」と聞く",
@@ -361,8 +368,8 @@ async function dreamChapter(game, assets) {
   ]);
   if (ch === 0) await game.say("誠司", "……大丈夫か。");
   else if (ch === 2) await game.say("誠司", "日曜、海に行こう。");
-  else await game.say("", "誠司は、何も言えなかった。");
-  await game.say("", "でも、どれを選んでも、陽菜は少し笑うだけ。");
+  else await game.say("", "誠司は、ただ陽菜を見ていた。");
+  await game.say("", "陽菜は、少し笑うだけだった。");
   await game.say("陽菜", "パパ、無理しなくていいよ。");
 
   // 場面2：部屋の前（ドアは開かない）

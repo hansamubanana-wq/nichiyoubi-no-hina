@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { box, mat, portrait } from "../core/build.js";
+import { box, mat, portrait, nameRefs } from "../core/build.js";
+import { loadMapData } from "../editor/mapIO.js";
 
 // 陽菜の部屋。CHAPTER 1〜6 で使う。机・ベッド・本棚・制服・スマホ・写真など。
 export function buildHinaRoom() {
@@ -8,14 +9,24 @@ export function buildHinaRoom() {
   scene.fog = new THREE.Fog(0x0c0e12, 8, 26);
   const refs = {};
 
-  // 部屋
+  // 部屋（床・壁・天井は userData.surface で外部テクスチャを適用）
   const w = 6, d = 6, h = 2.7;
-  scene.add(box(w, 0.2, d, mat(0x6b5640, { roughness: 0.7 }), 0, -0.1, 0)); // 床
+  const floor = box(w, 0.2, d, mat(0x6b5640, { roughness: 0.7 }), 0, -0.1, 0);
+  floor.userData.surface = { tex: "wood_floor", tile: 2.0 };
+  scene.add(floor);
   const wallMat = mat(0xc8bda6, { roughness: 0.97 });
-  scene.add(box(w, h, 0.2, wallMat, 0, h / 2, -d / 2)); // 奥
-  scene.add(box(0.2, h, d, wallMat, -w / 2, h / 2, 0)); // 左
-  scene.add(box(0.2, h, d, wallMat, w / 2, h / 2, 0)); // 右
-  scene.add(box(w, 0.2, d, mat(0x9a9078, { roughness: 1 }), 0, h, 0)); // 天井
+  const walls = [
+    box(w, h, 0.2, wallMat, 0, h / 2, -d / 2),
+    box(0.2, h, d, wallMat, -w / 2, h / 2, 0),
+    box(0.2, h, d, wallMat, w / 2, h / 2, 0),
+  ];
+  walls.forEach((wl) => {
+    wl.userData.surface = { tex: "beige_wall_001", tile: 2.4 };
+    scene.add(wl);
+  });
+  const ceil = box(w, 0.2, d, mat(0x9a9078, { roughness: 1 }), 0, h, 0);
+  ceil.userData.surface = { tex: "painted_plaster_wall", tile: 3.0 };
+  scene.add(ceil);
 
   // 窓（奥壁）＋やわらかい外光
   scene.add(box(1.8, 1.3, 0.06, mat(0x2a3b4a, { roughness: 0.2, metalness: 0.1 }), 1.4, 1.5, -d / 2 + 0.06));
@@ -132,16 +143,19 @@ export function buildHinaRoom() {
     window: { pos: [0, 1.5, 1.5], look: [1.4, 1.5, -3] },
   };
 
+  nameRefs(refs);
   return { scene, refs, cam };
 }
 
 // 実モデル（CC0）へ差し替え
-export async function upgradeHinaRoom(assets, scene, refs) {
+export async function upgradeHinaRoom(assets, scene, refs, game, opts = {}) {
   if (!assets) return;
   await assets.ready;
   assets.applyEnvironment(scene, 0.25);
+  assets.applySurfaceTextures(scene);
   await assets.swap(scene, refs.desk, "SchoolDesk_01", { rotationY: Math.PI / 2 });
   await assets.swap(scene, refs.deskChair, "SchoolChair_01", { rotationY: -Math.PI / 2 });
   await assets.swap(scene, refs.shelf, "wooden_bookshelf_worn", { rotationY: -Math.PI / 2 });
   await assets.swap(scene, refs.books, "book_encyclopedia_set_01", { fit: "max" });
+  if (!opts.skipMap) await loadMapData(scene, "hinaRoom", assets);
 }

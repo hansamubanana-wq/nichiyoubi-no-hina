@@ -63,6 +63,58 @@ export class AssetManager {
     pmrem.dispose();
   }
 
+  // ---- テクスチャ（床・壁などのサーフェス材質） ----
+  _loadTex(path, srgb) {
+    const t = new THREE.TextureLoader().load("/" + path);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+
+  // テクスチャID から MeshStandardMaterial を生成。未取得時は色フォールバック。
+  surface(id, { repeat = [1, 1], roughness = 0.9, fallback = 0x9a8f78 } = {}) {
+    const tex = this.manifest && this.manifest.textures && this.manifest.textures[id];
+    const m = new THREE.MeshStandardMaterial({
+      color: tex ? 0xffffff : fallback,
+      roughness,
+    });
+    if (tex) {
+      if (tex.diff) {
+        m.map = this._loadTex(tex.diff, true);
+        m.map.repeat.set(repeat[0], repeat[1]);
+      }
+      if (tex.nor) {
+        m.normalMap = this._loadTex(tex.nor, false);
+        m.normalMap.repeat.set(repeat[0], repeat[1]);
+      }
+      if (tex.rough) {
+        m.roughnessMap = this._loadTex(tex.rough, false);
+        m.roughnessMap.repeat.set(repeat[0], repeat[1]);
+      }
+    }
+    return m;
+  }
+
+  // userData.surface = { tex, tile, roughness } を持つメッシュにテクスチャを適用。
+  // tile はテクスチャ1枚あたりの実寸（m）。メッシュ寸法から繰り返し回数を算出。
+  applySurfaceTextures(scene) {
+    scene.traverse((o) => {
+      if (!o.isMesh || !o.userData || !o.userData.surface) return;
+      const { tex, tile = 2, roughness } = o.userData.surface;
+      o.geometry.computeBoundingBox();
+      const s = new THREE.Vector3();
+      o.geometry.boundingBox.getSize(s);
+      const dims = [s.x, s.y, s.z].sort((a, b) => b - a);
+      const repeat = [
+        Math.max(1, Math.round(dims[0] / tile)),
+        Math.max(1, Math.round(dims[1] / tile)),
+      ];
+      const mat = this.surface(tex, { repeat, roughness });
+      if (o.material && o.material.dispose) o.material.dispose();
+      o.material = mat;
+    });
+  }
+
   // シーンに環境マップ（IBL）を控えめに適用。背景は変えず反射のみ。
   applyEnvironment(scene, intensity = 0.28) {
     if (!this.envTexture) return;
@@ -124,6 +176,9 @@ export class AssetManager {
     model.position.y += dy;
     model.position.z += dz;
 
+    // プレースホルダの識別名と種別を引き継ぐ（マップエディタで編集可能に）
+    if (placeholder.name) model.name = placeholder.name;
+    model.userData.kitType = name;
     scene.add(model);
     if (placeholder.parent) placeholder.parent.remove(placeholder);
     return model;
